@@ -1,0 +1,30 @@
+{
+  "name": "color-palete",
+  "version": "1.0.0",
+  "description": "Presents color palete",
+  "author": "Alexey Ulyanov",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "precommit": "npm run lint",
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@nuxtjs/style-resources": "^0.1.2",
+    "bootstrap-vue": "^2.0.0-rc.25",
+    "nuxt": "^2.0.0"
+  },
+  "devDependencies": {
+    "@vue/cli-service": "^3.9.0",
+    "@vue/eslint-config-airbnb": "^4.0.0",
+    "babel-eslint": "^10.0.2",
+    "eslint": "^6.0.1",
+    "eslint-loader": "^2.2.0",
+    "eslint-plugin-vue": "^5.2.3",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.1.0"
+  }
+}
