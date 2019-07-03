@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import styler from 'stylerjs';
+
 export default {
 	components: {},
 	data() {
@@ -107,21 +109,23 @@ export default {
 		this.colorValues = Object.assign({}, this.colorValues, vals);
 	},
 
-/*
+
 	mounted() {
 		this.$nextTick(() => {
 			const vals = {};
 			this.colors.forEach((color) => {
 				this.hues.forEach((hue) => {
-					const el = document.querySelector(`.${color}.${hue}`);
-					const bgColor = window.getComputedStyle(el, null).getPropertyValue('background-color');
-
-					vals[`${color}_${hue}`] = this.rgbToHex(bgColor);
+					const rule = `.${color}.${hue}`;
+					const rgbColor = styler(rule).get(['background-color']);
+					if (rgbColor) {
+						vals[`${color}_${hue}`] = this.rgbToHex(rgbColor['background-color']);
+					}
 				});
 			});
+
 			this.colorValues = Object.assign({}, this.colorValues, vals);
 		 });
-	}, */
+	},
 };
 </script>
 

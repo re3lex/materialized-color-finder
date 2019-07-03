@@ -15,7 +15,8 @@
   "dependencies": {
     "@nuxtjs/style-resources": "^0.1.2",
     "bootstrap-vue": "^2.0.0-rc.25",
-    "nuxt": "^2.0.0"
+    "nuxt": "^2.0.0",
+    "stylerjs": "^1.4.0"
   },
   "devDependencies": {
     "@vue/cli-service": "^3.9.0",
