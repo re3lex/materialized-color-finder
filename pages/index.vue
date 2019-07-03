@@ -1,36 +1,51 @@
 <template>
-	<div class="container">
-		<b-container class="bv-example-row">
-			<b-row>
-				<b-col
-					sm="12"
-					md="6"
-					lg="4"
-					v-for="color in colors"
-					:key="color"
-					class="dynamic-color"
+	<b-container>
+		<b-navbar
+			type="dark"
+			variant="info"
+		>
+			<!-- Right aligned nav items -->
+			<b-navbar-nav class="ml-auto">
+				<b-nav-form>
+					<b-form-input
+						size="sm"
+						class="mr-lg-2 "
+						placeholder="Search"
+						v-model="filter"
+					/>
+				</b-nav-form>
+			</b-navbar-nav>
+		</b-navbar>
+		<b-row>
+			<b-col
+				sm="12"
+				md="6"
+				lg="4"
+				v-for="comb in allowedCombinations"
+				:key="comb.color"
+				class="dynamic-color"
+			>
+				<div
+					v-for="hue in comb.hues"
+					:key="hue"
+					:class="`${comb.color} ${hue}`"
+					:style="hue.startsWith('darken') && 'color: rgba(255, 255, 255, 0.9);'"
 				>
-					<div
-						v-for="hue in getAcceptableHues(color)"
-						:key="hue"
-						:class="`${color} ${hue}`"
-						:style="hue.startsWith('darken') && 'color: rgba(255, 255, 255, 0.9);'"
-					>
-						{{ colorValues[color+'_'+hue] }} {{ color }} {{ hue }}
-					</div>
-				</b-col>
-			</b-row>
-		</b-container>
-	</div>
+					{{ colorValues[comb.color+'_'+hue] }} {{ comb.color }} {{ hue }}
+				</div>
+			</b-col>
+		</b-row>
+	</b-container>
 </template>
 
 <script>
 import styler from 'stylerjs';
 
 export default {
-	components: {},
+	components: { },
 	data() {
 		return {
+			filter: '',
 			colors: [
 				'red',
 				'pink',
@@ -69,14 +84,17 @@ export default {
 				'accent-4',
 			],
 			colorValues: {},
+			reverseColorValues: {},
 		};
 	},
+
+
 	methods: {
 		getAcceptableHues(color) {
 			if (['brown', 'blue-grey', 'grey'].indexOf(color) < 0) {
-				return this.hues;
+				return this.filteredHues;
 			}
-			return this.hues.filter(h => !h.startsWith('accent-'));
+			return this.filteredHues.filter(h => !h.startsWith('accent-'));
 		},
 		rgbToHex(color) {
 			color = `${color}`;
@@ -93,38 +111,95 @@ export default {
 			const g = parseInt(nums[3], 10).toString(16);
 			const b = parseInt(nums[4], 10).toString(16);
 
-			return `#${
-				(r.length === 1 ? `0${r}` : r)
-        + (g.length === 1 ? `0${g}` : g)
-        + (b.length === 1 ? `0${b}` : b)}`.toUpperCase();
+			return `#${(r.length === 1 ? `0${r}` : r)
+				+ (g.length === 1 ? `0${g}` : g)
+				+ (b.length === 1 ? `0${b}` : b)}`.toUpperCase();
 		},
 	},
-	created() {
-		const vals = {};
-		this.colors.forEach((color) => {
-			this.hues.forEach((hue) => {
-				vals[`${color}_${hue}`] = 'na';
-			});
-		});
-		this.colorValues = Object.assign({}, this.colorValues, vals);
-	},
 
+	computed: {
+		allowedCombinations() {
+			if (!this.filter || !this.reverseColorValues) {
+				const vals = [];
+				this.colors.forEach((color) => {
+					const o = { color, hues: [] };
+					this.getAcceptableHues(color).forEach((hue) => {
+						o.hues.push(hue);
+					});
+					vals.push(o);
+				});
+				return vals;
+			}
+			const filtered = {};
+
+			const fixedFilter = this.filter.trim().toUpperCase();
+			Object.keys(this.reverseColorValues).forEach((hex) => {
+				const data = this.reverseColorValues[hex];
+				if (hex.includes(fixedFilter)) {
+					const v = filtered[data.color] || { color: data.color, hues: [] };
+					v.hues.push(data.hue);
+					filtered[data.color] = v;
+				}
+			});
+			return Object.values(filtered);
+		},
+		filteredColors() {
+			if (!this.filter || !this.reverseColorValues) {
+				return this.colors;
+			}
+			const fixedFilter = this.filter.toUpperCase();
+			const filtered = [];
+			Object.keys(this.reverseColorValues).forEach((hex) => {
+				const data = this.reverseColorValues[hex];
+				if (filtered.indexOf(data.color) < 0 && hex.includes(fixedFilter)) {
+					filtered.push(data.color);
+				}
+			});
+
+			return filtered;
+		},
+
+		filteredHues() {
+			if (!this.filter || !this.reverseColorValues) {
+				return this.hues;
+			}
+			const fixedFilter = this.filter.toUpperCase();
+			const filtered = [];
+			Object.keys(this.reverseColorValues).forEach((hex) => {
+				const data = this.reverseColorValues[hex];
+				if (filtered.indexOf(data.hue) < 0 && hex.includes(fixedFilter)) {
+					filtered.push(data.hue);
+				}
+			});
+
+			return filtered;
+		},
+	},
 
 	mounted() {
 		this.$nextTick(() => {
 			const vals = {};
+			const revValues = {};
 			this.colors.forEach((color) => {
 				this.hues.forEach((hue) => {
 					const rule = `.${color}.${hue}`;
 					const rgbColor = styler(rule).get(['background-color']);
 					if (rgbColor) {
-						vals[`${color}_${hue}`] = this.rgbToHex(rgbColor['background-color']);
+						const hex = this.rgbToHex(
+							rgbColor['background-color'],
+						);
+
+						vals[`${color}_${hue}`] = hex;
+						revValues[hex] = {
+							color, hue,
+						};
 					}
 				});
 			});
 
 			this.colorValues = Object.assign({}, this.colorValues, vals);
-		 });
+			this.reverseColorValues = Object.assign({}, this.reverseColorValues, revValues);
+		});
 	},
 };
 </script>
@@ -133,7 +208,7 @@ export default {
 .container {
 	margin: 0 auto;
 	min-height: 100vh;
-	display: flex;
+	//display: flex;
 	justify-content: center;
 	align-items: center;
 	text-align: center;
