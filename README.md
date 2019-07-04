@@ -1,6 +1,6 @@
-# color-palete
+# color-palette
 
-> Presents color palete
+> Presents color palette
 
 ## Build Setup
 

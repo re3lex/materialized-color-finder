@@ -2,10 +2,16 @@
 	<b-container>
 		<b-navbar
 			type="dark"
-			variant="info"
+			variant="dark"
+			sticky
 		>
+			<b-navbar-brand href="#">
+				Materialized Color palette
+			</b-navbar-brand>
 			<!-- Right aligned nav items -->
-			<b-navbar-nav class="ml-auto">
+			<b-navbar-nav
+				class="expanded-search"
+			>
 				<b-nav-form>
 					<b-form-input
 						size="sm"
@@ -16,7 +22,7 @@
 				</b-nav-form>
 			</b-navbar-nav>
 		</b-navbar>
-		<b-row>
+		<b-row class="palette">
 			<b-col
 				sm="12"
 				md="6"
@@ -32,6 +38,14 @@
 					:style="hue.startsWith('darken') && 'color: rgba(255, 255, 255, 0.9);'"
 				>
 					{{ colorValues[comb.color+'_'+hue] }} {{ comb.color }} {{ hue }}
+
+					<b-link
+						@click="doCopy(comb.color, hue)"
+						v-b-tooltip.hover
+						:title="`Copy value: color('${comb.color}','${hue}')`"
+					>
+						<i class="fas fa-copy"></i>
+					</b-link>
 				</div>
 			</b-col>
 		</b-row>
@@ -42,7 +56,7 @@
 import styler from 'stylerjs';
 
 export default {
-	components: { },
+	components: {},
 	data() {
 		return {
 			filter: '',
@@ -88,7 +102,6 @@ export default {
 		};
 	},
 
-
 	methods: {
 		getAcceptableHues(color) {
 			if (['brown', 'blue-grey', 'grey'].indexOf(color) < 0) {
@@ -114,6 +127,25 @@ export default {
 			return `#${(r.length === 1 ? `0${r}` : r)
 				+ (g.length === 1 ? `0${g}` : g)
 				+ (b.length === 1 ? `0${b}` : b)}`.toUpperCase();
+		},
+
+		doCopy(color, hue) {
+			const v = `color('${color}','${hue}')`;
+			if (this.$clipboard(v)) {
+				this.$bvToast.toast('Color statement successfully copied!', {
+					title: 'Copied!',
+					variant: 'success',
+					solid: true,
+					toaster: 'b-toaster-bottom-center',
+				});
+			} else {
+				this.$bvToast.toast('Unable to copy Color statement!', {
+					title: 'Error!',
+					variant: 'danger',
+					solid: true,
+					toaster: 'b-toaster-bottom-center',
+				});
+			}
 		},
 	},
 
@@ -185,20 +217,23 @@ export default {
 					const rule = `.${color}.${hue}`;
 					const rgbColor = styler(rule).get(['background-color']);
 					if (rgbColor) {
-						const hex = this.rgbToHex(
-							rgbColor['background-color'],
-						);
+						const hex = this.rgbToHex(rgbColor['background-color']);
 
 						vals[`${color}_${hue}`] = hex;
 						revValues[hex] = {
-							color, hue,
+							color,
+							hue,
 						};
 					}
 				});
 			});
 
 			this.colorValues = Object.assign({}, this.colorValues, vals);
-			this.reverseColorValues = Object.assign({}, this.reverseColorValues, revValues);
+			this.reverseColorValues = Object.assign(
+				{},
+				this.reverseColorValues,
+				revValues,
+			);
 		});
 	},
 };
@@ -235,6 +270,18 @@ export default {
 			flex-direction: column;
 			-webkit-box-sizing: border-box;
 			box-sizing: border-box;
+		}
+	}
+
+	.palette {
+		margin-top: 20px;
+	}
+
+	.expanded-search {
+		width: 100%;
+		display: inline-block;
+		input {
+			width: 100%;
 		}
 	}
 }

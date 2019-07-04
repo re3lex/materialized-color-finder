@@ -1,7 +1,7 @@
 {
-  "name": "color-palete",
+  "name": "color-palette",
   "version": "1.0.0",
-  "description": "Presents color palete",
+  "description": "Presents color palette",
   "author": "Alexey Ulyanov",
   "private": true,
   "scripts": {
@@ -16,7 +16,8 @@
     "@nuxtjs/style-resources": "^0.1.2",
     "bootstrap-vue": "^2.0.0-rc.25",
     "nuxt": "^2.0.0",
-    "stylerjs": "^1.4.0"
+    "stylerjs": "^1.4.0",
+    "v-clipboard": "^2.2.2"
   },
   "devDependencies": {
     "@vue/cli-service": "^3.9.0",
