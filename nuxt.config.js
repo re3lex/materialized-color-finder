@@ -4,6 +4,7 @@ require('dotenv').config();
 
 export default {
 	mode: 'spa',
+
 	router: {
 		base: process.env.NODE_ENV === 'dev' ? '/' : '/color-palette/',
 	},
@@ -38,14 +39,9 @@ export default {
 	modules: [
 		'bootstrap-vue/nuxt',
 		'@nuxtjs/style-resources',
-		'@nuxtjs/yandex-metrika',
 		'@nuxtjs/dotenv',
 	],
-	yandexMetrika: {
-		id: process.env.YANDEX_METRIKA_ID,
-		webvisor: true,
-		clickmap: true,
-	},
+
 	styleResources: {
 		scss: [
 			'assets/scss/_color-variables.scss',
